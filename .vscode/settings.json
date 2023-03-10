@@ -1,0 +1,4 @@
+{
+    "powershell.buttons.showRunButtons": true,
+    "powershell.codeFormatting.trimWhitespaceAroundPipe": false
+}

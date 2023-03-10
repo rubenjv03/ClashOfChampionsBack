@@ -23,8 +23,8 @@ class User
     #[ORM\Column(length: 60)]
     private ?string $playerPwd = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $birthdate = null;
+    #[ORM\Column(length: 10)]
+    private ?string $birthdate = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $ranking = null;
@@ -70,12 +70,12 @@ class User
         return $this;
     }
 
-    public function getBirthdate(): ?\DateTime
+    public function getBirthdate(): ?string
     {
         return $this->birthdate;
     }
 
-    public function setBirthdate(\DateTime $birthdate): self
+    public function setBirthdate(string $birthdate): self
     {
         $this->birthdate = $birthdate;
 

@@ -1,8 +1,9 @@
 <?php
-
 namespace App\Controller;
-
-
+header("Access-Control-Allow-Origin: http://localhost:4200/register");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Headers");
+header("Access-Control-Allow-Methods: GET, POST OPTIONS, PUT, DELETE");
+header("Allow: GET, POST, OPTIONS, PUT, DELETE");
 use App\Entity\User;
 use DateTime;
 use App\Repository\UserRepository;
@@ -10,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpParser\Node\Stmt\TryCatch;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -57,7 +59,7 @@ class UserController extends AbstractController
      */
 
     //FUNCIÓN DE PRUEBA
-    public function userSignIn(ManagerRegistry $doctrine): Response
+    /*public function userSignIn(ManagerRegistry $doctrine): Response
     {
         $birthDate = new DateTime('2022-01-30');
         $entityManager = $doctrine->getManager();
@@ -71,20 +73,27 @@ class UserController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
         return new Response("Usuario regsistrado en la base de datos correctamente");
-    }   
+    }   */
 
     //FUNCIÓN BUENA
-    /*public function userSignIn($userName, $userEmail, $userPwd, $birthDate, ManagerRegistry $doctrine)
+    public function userSignIn(ManagerRegistry $doctrine, Request $request)
     {
+
+
+        
+        $user = json_decode($request->getContent(), true);
+
+        //$user = json_decode(file_get_contents("php://input"));
         $entityManager = $doctrine->getManager();
-        $user = new User();
-        $user->setNickname($userName);
-        $user->setMail($userEmail);
-        $user->setPlayerPwd($userPwd);
-        $user->setBirthdate($birthDate);
-        $entityManager->persist($user);
+        $userToRegister = new User();
+        $userToRegister->setNickname($user["username"]);
+        $userToRegister->setMail($user["email"]);
+        $userToRegister->setPlayerPwd($user["password"]);
+        $userToRegister->setBirthdate($user["birthdate"]);
+        $entityManager->persist($userToRegister);
         $entityManager->flush();
-    }   */
+        return new Response("user registered");
+    }   
 
 
     //DELETE
@@ -93,7 +102,7 @@ class UserController extends AbstractController
      */
     public function deleteUser($userNickname, ManagerRegistry $doctrine){
         try {
-            $repository = new UserRepository($doctrine);
+        $repository = new UserRepository($doctrine);
         $userToDelete = $repository->findOneBy(array('nickname' => $userNickname));
         $repository->remove($userToDelete, true);
         return new Response("Usuario eliminado de la base de datos correctamente");
