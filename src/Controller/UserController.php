@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpParser\Node\Stmt\TryCatch;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,19 +23,22 @@ class UserController extends AbstractController
      */
 
     //PRUEBA
-    public function userLogin(ManagerRegistry $doctrine)
-    {
+    public function userLogin(ManagerRegistry $doctrine, Request $request)
+    {   session_destroy();
+        $userToLogin = json_decode($request->getContent(), true);
         $repository = $doctrine->getRepository(User::class);
-        $user = $repository->findOneBy(array('nickname' => "usuarioPrueba1")); 
-        var_dump($user);
+        $user = $repository->findOneBy(array('mail' => $userToLogin["email"]));
         $hash = $user->getPlayerPwd();
-        echo($hash);
         //var_dump(password_get_info($hash));
         //print_r( password_verify("1234", $user->getPlayerPwd()));
-        if (password_verify('1234', $hash)) {
-            return new Response("contraseña correcta");
+        if (password_verify($userToLogin["password"], $hash)) {
+            session_start();
+            $_SESSION["username"]=$user->getNickname();http://localhost:4200/
+            return $this->json([
+                'redirectTo' => 'http://localhost:4200/'
+            ]);
         }else{
-            return new Response("Contraseña incorrecta");
+            return new Response("username or password are incorrect", 401);
         }
     }
 
@@ -58,29 +62,8 @@ class UserController extends AbstractController
      * @Route("/signin")
      */
 
-    //FUNCIÓN DE PRUEBA
-    /*public function userSignIn(ManagerRegistry $doctrine): Response
-    {
-        $birthDate = new DateTime('2022-01-30');
-        $entityManager = $doctrine->getManager();
-        $user = new User();
-        $user->setNickname("usuarioPrueba1");
-        $user->setMail("gBCHJBCHDVf@gmail.com");
-        $user->setPlayerPwd("1234");
-        $user->setBirthdate($birthDate);
-        $claveDeUsuario = password_hash($user->getPlayerPwd(),PASSWORD_DEFAULT);
-        $user->setPlayerPwd($claveDeUsuario);
-        $entityManager->persist($user);
-        $entityManager->flush();
-        return new Response("Usuario regsistrado en la base de datos correctamente");
-    }   */
-
-    //FUNCIÓN BUENA
     public function userSignIn(ManagerRegistry $doctrine, Request $request)
-    {
-
-
-        
+    {        
         $user = json_decode($request->getContent(), true);
 
         //$user = json_decode(file_get_contents("php://input"));
@@ -88,7 +71,8 @@ class UserController extends AbstractController
         $userToRegister = new User();
         $userToRegister->setNickname($user["username"]);
         $userToRegister->setMail($user["email"]);
-        $userToRegister->setPlayerPwd($user["password"]);
+        $pwd = password_hash($user["password"], PASSWORD_DEFAULT); 
+        $userToRegister->setPlayerPwd($pwd);
         $userToRegister->setBirthdate($user["birthdate"]);
         $entityManager->persist($userToRegister);
         $entityManager->flush();
@@ -100,10 +84,11 @@ class UserController extends AbstractController
     /**
      * @Route("/user/delete/{userNickname}")
      */
-    public function deleteUser($userNickname, ManagerRegistry $doctrine){
+    public function deleteUser($userNickname, ManagerRegistry $doctrine, Request $request){
         try {
         $repository = new UserRepository($doctrine);
-        $userToDelete = $repository->findOneBy(array('nickname' => $userNickname));
+        $userToDeleteData = json_decode($request->getContent(), true);
+        $userToDelete = $repository->findOneBy(array('nickname' => $userToDeleteData[""]));
         $repository->remove($userToDelete, true);
         return new Response("Usuario eliminado de la base de datos correctamente");
         } catch (\Throwable $th) {
