@@ -24,7 +24,7 @@ class UserController extends AbstractController
 
     //PRUEBA
     public function userLogin(ManagerRegistry $doctrine, Request $request)
-    {   session_destroy();
+    {   
         $userToLogin = json_decode($request->getContent(), true);
         $repository = $doctrine->getRepository(User::class);
         $user = $repository->findOneBy(array('mail' => $userToLogin["email"]));
@@ -33,7 +33,7 @@ class UserController extends AbstractController
         //print_r( password_verify("1234", $user->getPlayerPwd()));
         if (password_verify($userToLogin["password"], $hash)) {
             session_start();
-            $_SESSION["username"]=$user->getNickname();http://localhost:4200/
+            $_SESSION["username"]=$user->getNickname();
             return $this->json([
                 'redirectTo' => 'http://localhost:4200/'
             ]);
@@ -97,14 +97,14 @@ class UserController extends AbstractController
         
     }
     /**
-     * @Route("/profile/{userNickname}")
+     * @Route("/profile/")
      */
-    public function viewProfile($userNickname, ManagerRegistry $doctrine)
+    public function viewProfile(ManagerRegistry $doctrine)
     {
         $repository = $doctrine->getRepository(User::class);
-        $user = $repository->findOneBy(array('nickname' => $userNickname)); 
-        $jsonInfo = new JsonResponse(json_encode($user));
-        $jsonInfo->send();
+        $user = $repository->findOneBy(array('nickname' => $_SESSION["username"])); 
+        return new JsonResponse(json_encode($user));
+
     }
 
     /**
