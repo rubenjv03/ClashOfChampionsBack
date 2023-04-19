@@ -119,8 +119,8 @@ public function viewProfile(Session $session, ManagerRegistry $doctrine)
     $repository = $doctrine->getRepository(User::class);
     $username = $session->get('username');
     $user = $repository->findOneBy(array('nickname' => $username));
-    $userData = array("username" => $user->getNickname(), "email"=> $user->getMail(), "password"=>"", "birthdate"=>$user->getBirthdate());
-    return new JsonResponse(json_encode($userData)); 
+    $userData = array("id"=>$user->getId(),"nickname" => $user->getNickname(), "mail"=> $user->getMail(), "player_pwd"=>"", "birthdate"=>$user->getBirthdate());
+    return $this->json($userData);
 }
 
     /**
