@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class UserController extends AbstractController
 {
@@ -32,8 +33,9 @@ class UserController extends AbstractController
         //var_dump(password_get_info($hash));
         //print_r( password_verify("1234", $user->getPlayerPwd()));
         if (password_verify($userToLogin["password"], $hash)) {
-            session_start();
-            $_SESSION["username"]=$user->getNickname();
+            $session = new Session();
+            $session->start();
+            $session->set("username", $user->getNickname());
             return $this->json([
                 'redirectTo' => 'http://localhost:4200/'
             ]);
@@ -76,7 +78,9 @@ class UserController extends AbstractController
         $userToRegister->setBirthdate($user["birthdate"]);
         $entityManager->persist($userToRegister);
         $entityManager->flush();
-        return new Response("user registered");
+        return $this->json([
+            'redirectTo' => 'http://localhost:4200/myProfile'
+        ]);
     }   
 
 
@@ -99,13 +103,25 @@ class UserController extends AbstractController
     /**
      * @Route("/profile/")
      */
-    public function viewProfile(ManagerRegistry $doctrine)
-    {
-        $repository = $doctrine->getRepository(User::class);
-        $user = $repository->findOneBy(array('nickname' => $_SESSION["username"])); 
-        return new JsonResponse(json_encode($user));
 
-    }
+    // public function viewProfile(ManagerRegistry $doctrine)
+    // {   
+    //     $repository = $doctrine->getRepository(User::class);
+    //     echo($_SESSION["username"]);
+    //     $user = $repository->findOneBy(array('nickname' => $_SESSION["username"])); 
+    //     return new JsonResponse(json_encode($user));
+
+    // }
+    
+
+public function viewProfile(Session $session, ManagerRegistry $doctrine)
+{   
+    $repository = $doctrine->getRepository(User::class);
+    $username = $session->get('username');
+    $user = $repository->findOneBy(array('nickname' => $username));
+    $userData = array("username" => $user->getNickname(), "email"=> $user->getMail(), "password"=>"", "birthdate"=>$user->getBirthdate());
+    return new JsonResponse(json_encode($userData)); 
+}
 
     /**
      * @Route("/profile")
