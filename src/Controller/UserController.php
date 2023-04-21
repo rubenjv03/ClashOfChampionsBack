@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Controller;
+
 header("Access-Control-Allow-Origin: http://localhost:4200/register");
 header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Headers");
 header("Access-Control-Allow-Methods: GET, POST OPTIONS, PUT, DELETE");
 header("Allow: GET, POST, OPTIONS, PUT, DELETE");
+
 use App\Entity\User;
 use DateTime;
 use App\Repository\UserRepository;
@@ -25,7 +28,7 @@ class UserController extends AbstractController
 
     //PRUEBA
     public function userLogin(ManagerRegistry $doctrine, Request $request, Session $session)
-    {   
+    {
         $userToLogin = json_decode($request->getContent(), true);
         $repository = $doctrine->getRepository(User::class);
         $user = $repository->findOneBy(array('mail' => $userToLogin["email"]));
@@ -39,25 +42,27 @@ class UserController extends AbstractController
             return $this->json([
                 'redirectTo' => 'http://localhost:4200/'
             ]);
-        }else{
+        } else {
             return new Response("username or password are incorrect", 401);
         }
     }
 
-    /*public function userLogin($userName, $userPwd, ManagerRegistry $doctrine)
+
+    /**
+     * @Route("/logout")
+     */
+    public function logout(Session $session)
     {
-        $entityManager = $doctrine->getManager();
-        $repository = $doctrine->getRepository(User::class);
-        $user = $repository->findOneBy(array('nickname' => $userName));
-        if (password_verify($userPwd, $user->getPlayerPwd())) {
-            return new Response("Login efectuado correcamente");
-        }else {
-            
+        if ($session->isStarted()) {
+            $session->save();
         }
+        return $this->json([
+            'redirectTo' => 'http://localhost:4200/'
+        ]);
+    }
 
 
-       
-    }*/
+   
 
 
     /**
@@ -65,8 +70,8 @@ class UserController extends AbstractController
      */
 
     public function userSignIn(ManagerRegistry $doctrine, Request $request)
-    {      
-          
+    {
+
         $user = json_decode($request->getContent(), true);
 
         //$user = json_decode(file_get_contents("php://input"));
@@ -74,7 +79,7 @@ class UserController extends AbstractController
         $userToRegister = new User();
         $userToRegister->setNickname($user["username"]);
         $userToRegister->setMail($user["email"]);
-        $pwd = password_hash($user["password"], PASSWORD_DEFAULT); 
+        $pwd = password_hash($user["password"], PASSWORD_DEFAULT);
         $userToRegister->setPlayerPwd($pwd);
         $userToRegister->setBirthdate($user["birthdate"]);
         $entityManager->persist($userToRegister);
@@ -85,24 +90,24 @@ class UserController extends AbstractController
         return $this->json([
             'redirectTo' => 'http://localhost:4200/'
         ]);
-    }   
+    }
 
 
     //DELETE
     /**
      * @Route("/user/delete/{userNickname}")
      */
-    public function deleteUser($userNickname, ManagerRegistry $doctrine, Request $request){
+    public function deleteUser($userNickname, ManagerRegistry $doctrine, Request $request)
+    {
         try {
-        $repository = new UserRepository($doctrine);
-        $userToDeleteData = json_decode($request->getContent(), true);
-        $userToDelete = $repository->findOneBy(array('nickname' => $userToDeleteData[""]));
-        $repository->remove($userToDelete, true);
-        return new Response("Usuario eliminado de la base de datos correctamente");
+            $repository = new UserRepository($doctrine);
+            $userToDeleteData = json_decode($request->getContent(), true);
+            $userToDelete = $repository->findOneBy(array('nickname' => $userToDeleteData[""]));
+            $repository->remove($userToDelete, true);
+            return new Response("Usuario eliminado de la base de datos correctamente");
         } catch (\Throwable $th) {
             return new Response($th->getMessage());
         }
-        
     }
     /**
      * @Route("/profile/")
@@ -116,16 +121,16 @@ class UserController extends AbstractController
     //     return new JsonResponse(json_encode($user));
 
     // }
-    
 
-public function viewProfile(Session $session, ManagerRegistry $doctrine)
-{   
-    $repository = $doctrine->getRepository(User::class);
-    $username = $session->get('nickname');
-    $user = $repository->findOneBy(array('nickname' => $username));
-    $userData = array("id"=>$user->getId(),"nickname" => $user->getNickname(), "mail"=> $user->getMail(), "player_pwd"=>"", "birthdate"=>$user->getBirthdate());
-    return $this->json($userData);
-}
+
+    public function viewProfile(Session $session, ManagerRegistry $doctrine)
+    {
+        $repository = $doctrine->getRepository(User::class);
+        $username = $session->get('nickname');
+        $user = $repository->findOneBy(array('nickname' => $username));
+        $userData = array("id" => $user->getId(), "nickname" => $user->getNickname(), "mail" => $user->getMail(), "player_pwd" => "", "birthdate" => $user->getBirthdate());
+        return $this->json($userData);
+    }
 
     /**
      * @Route("/profile-edit")
@@ -137,7 +142,6 @@ public function viewProfile(Session $session, ManagerRegistry $doctrine)
         // }
         $newName = json_decode($request->getContent(), true);
         return $newName;
-        
     }
 
     /**
@@ -145,18 +149,17 @@ public function viewProfile(Session $session, ManagerRegistry $doctrine)
      */
     public function checkSession(Session $session)
     {
-        if (isset($session)) {
+        if ($session->isStarted()) {
             return false;
-        }else{
+        } else {
             return true;
         }
-        
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     /*#[Route('/user', name: 'app_user')]
     public function index(): Response
     {
