@@ -24,7 +24,7 @@ class UserController extends AbstractController
      */
 
     //PRUEBA
-    public function userLogin(ManagerRegistry $doctrine, Request $request)
+    public function userLogin(ManagerRegistry $doctrine, Request $request, Session $session)
     {   
         $userToLogin = json_decode($request->getContent(), true);
         $repository = $doctrine->getRepository(User::class);
@@ -35,7 +35,7 @@ class UserController extends AbstractController
         if (password_verify($userToLogin["password"], $hash)) {
             $session = new Session();
             $session->start();
-            $session->set("username", $user->getNickname());
+            $session->set("nickname", $user->getNickname());
             return $this->json([
                 'redirectTo' => 'http://localhost:4200/'
             ]);
@@ -65,7 +65,8 @@ class UserController extends AbstractController
      */
 
     public function userSignIn(ManagerRegistry $doctrine, Request $request)
-    {        
+    {      
+          
         $user = json_decode($request->getContent(), true);
 
         //$user = json_decode(file_get_contents("php://input"));
@@ -78,8 +79,11 @@ class UserController extends AbstractController
         $userToRegister->setBirthdate($user["birthdate"]);
         $entityManager->persist($userToRegister);
         $entityManager->flush();
+        $session = new Session();
+        $session->start();
+        $session->set("nickname", $user->getNickname());
         return $this->json([
-            'redirectTo' => 'http://localhost:4200/myProfile'
+            'redirectTo' => 'http://localhost:4200/'
         ]);
     }   
 
@@ -117,22 +121,37 @@ class UserController extends AbstractController
 public function viewProfile(Session $session, ManagerRegistry $doctrine)
 {   
     $repository = $doctrine->getRepository(User::class);
-    $username = $session->get('username');
+    $username = $session->get('nickname');
     $user = $repository->findOneBy(array('nickname' => $username));
     $userData = array("id"=>$user->getId(),"nickname" => $user->getNickname(), "mail"=> $user->getMail(), "player_pwd"=>"", "birthdate"=>$user->getBirthdate());
     return $this->json($userData);
 }
 
     /**
-     * @Route("/profile")
+     * @Route("/profile-edit")
      */
-    public function editProfile()
+    public function editProfile(Request $request)
     {
+        // if(isset($_POST["submit-button"])){
+        //     return $_POST["textUser"];
+        // }
+        $newName = json_decode($request->getContent(), true);
+        return $newName;
         
     }
 
-    
-    
+    /**
+     * @Route("/checkSession")
+     */
+    public function checkSession(Session $session)
+    {
+        if (isset($session)) {
+            return false;
+        }else{
+            return true;
+        }
+        
+    }
     
     
     
