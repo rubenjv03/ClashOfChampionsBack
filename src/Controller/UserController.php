@@ -29,6 +29,7 @@ class UserController extends AbstractController
     //PRUEBA
     public function userLogin(ManagerRegistry $doctrine, Request $request, Session $session)
     {
+        $session->invalidate();
         $userToLogin = json_decode($request->getContent(), true);
         $repository = $doctrine->getRepository(User::class);
         $user = $repository->findOneBy(array('mail' => $userToLogin["email"]));
@@ -128,6 +129,7 @@ class UserController extends AbstractController
         $repository = $doctrine->getRepository(User::class);
         $username = $session->get('nickname');
         $user = $repository->findOneBy(array('nickname' => $username));
+        var_dump($user);
         $userData = array("id" => $user->getId(), "nickname" => $user->getNickname(), "mail" => $user->getMail(), "player_pwd" => "", "birthdate" => $user->getBirthdate());
         return $this->json($userData);
     }
