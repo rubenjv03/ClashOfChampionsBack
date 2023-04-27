@@ -129,7 +129,6 @@ class UserController extends AbstractController
         $repository = $doctrine->getRepository(User::class);
         $username = $session->get('nickname');
         $user = $repository->findOneBy(array('nickname' => $username));
-        var_dump($user);
         $userData = array("id" => $user->getId(), "nickname" => $user->getNickname(), "mail" => $user->getMail(), "player_pwd" => "", "birthdate" => $user->getBirthdate());
         return $this->json($userData);
     }
