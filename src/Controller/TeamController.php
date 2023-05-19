@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Team;
+use DeepCopy\Matcher\Doctrine\DoctrineProxyMatcher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,7 @@ class TeamController extends AbstractController
         $teamToRegister->setTeamDescription($team["description"]);
         $entityManager->persist($teamToRegister);
         $entityManager->flush();
+        
         //$session = new Session();
         //$session->start();
         $session->set("team", $teamToRegister->getTeamName());
@@ -43,6 +45,6 @@ class TeamController extends AbstractController
             'redirectTo' => 'http://localhost:4200/'
         ]);
     }
-    }
+}
 
 
