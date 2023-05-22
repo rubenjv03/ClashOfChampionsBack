@@ -20,8 +20,8 @@ class MatchController extends AbstractController
      * @Route("/match")
      */
 
-     public function hfhic(){
-
-     }
+    public function hfhic(){
+        
+    }
 
 }
