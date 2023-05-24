@@ -27,5 +27,6 @@ final class Version20230522154602 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('DROP TABLE tournament');
+        
     }
 }
