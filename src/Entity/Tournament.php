@@ -32,6 +32,9 @@ class Tournament
     #[ORM\Column]
     private ?bool $is_active = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Tournament
     public function setIsActive(bool $is_active): self
     {
         $this->is_active = $is_active;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
         return $this;
     }

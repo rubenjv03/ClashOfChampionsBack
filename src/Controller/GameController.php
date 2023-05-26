@@ -38,4 +38,18 @@ class GameController extends AbstractController
             'redirectTo' => 'http://localhost:4200/'
         ]);
     }
+
+    /**
+     * @Route("/getGames")
+     */
+    public function getAllGames(ManagerRegistry $doctrine){
+        $repository = $doctrine->getRepository(Game::class);
+        $games = $repository->findAll();
+        $gameNames = [];
+        foreach ($games as $game) {
+            $gameNames[] = $game->getGameName();
+        }
+    
+        return $this->json($gameNames);
+    }
 }
