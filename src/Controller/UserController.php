@@ -63,7 +63,7 @@ class UserController extends AbstractController
     }
 
 
-   
+
 
 
     /**
@@ -87,7 +87,7 @@ class UserController extends AbstractController
         $entityManager->flush();
         $session = new Session();
         $session->start();
-        $session->set("nickname", $user->getNickname());
+        $session->set("nickname", $userToRegister->getNickname());
         return $this->json([
             'redirectTo' => 'http://localhost:4200/'
         ]);
@@ -136,13 +136,35 @@ class UserController extends AbstractController
     /**
      * @Route("/profile-edit")
      */
-    public function editProfile(Request $request)
+    public function editProfile(Request $request,  ManagerRegistry $doctrine, Session $session)
     {
         // if(isset($_POST["submit-button"])){
         //     return $_POST["textUser"];
         // }
-        $newName = json_decode($request->getContent(), true);
-        return $newName;
+        try {
+            $entityManager = $doctrine->getManager();
+            $repository = $doctrine->getRepository(User::class);
+            $username = $session->get('nickname');
+            $user = $repository->findOneBy(array('nickname' => $username));
+            $newData = json_decode($request->getContent(), true);
+            $newName = $newData["newName"];
+            $newEmail = $newData["newEmail"];
+            $newRegion = $newData["newRegion"];
+            $newPassword = $newData["newPassword"];
+            if ($newName != "") {
+                $user->setNickname($newName);
+            }
+            if ($newEmail != "") {
+                $user->setMail($newEmail);
+            }
+            if ($newPassword != "") {
+                $user->setPlayerPwd($newPassword);
+            }
+            $entityManager->flush();
+            return new Response("Usuario actualizado con éxito");
+        } catch (\Throwable $th) {
+            return new Response($th->getMessage());
+        }
     }
 
     /**
