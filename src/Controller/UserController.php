@@ -55,7 +55,7 @@ class UserController extends AbstractController
     public function logout(Session $session)
     {
         if ($session->isStarted()) {
-            $session->save();
+            $session->invalidate();
         }
         return $this->json([
             'redirectTo' => 'http://localhost:4200/'
@@ -152,6 +152,7 @@ class UserController extends AbstractController
             $newRegion = $newData["newRegion"];
             $newPassword = $newData["newPassword"];
             if ($newName != "") {
+                $session->set('nickname', $newName);
                 $user->setNickname($newName);
             }
             if ($newEmail != "") {
@@ -172,10 +173,10 @@ class UserController extends AbstractController
      */
     public function checkSession(Session $session)
     {
-        if ($session->isStarted()) {
-            return false;
+        if ($session->has('nickname')) {
+            return $this->json(['isLogged'=>true]);
         } else {
-            return true;
+            return $this->json(['isLogged'=>false]);
         }
     }
 
