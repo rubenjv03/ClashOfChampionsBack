@@ -69,20 +69,30 @@ class UserController extends AbstractController
     /**
      * @Route("/signin")
      */
-
     public function userSignIn(ManagerRegistry $doctrine, Request $request)
     {
-
         $user = json_decode($request->getContent(), true);
-
-        //$user = json_decode(file_get_contents("php://input"));
+    
+        // Verificar la edad del usuario
+        $birthdate = new DateTime($user["birthdate"]);
+        $now = new DateTime();
+        $interval = $now->diff($birthdate);
+        $age = $interval->y;
+    
+        if ($age < 16) {
+            return new Response("Debes tener al menos 16 años para registrarte", 400);
+        }
+    
+        // Registrar al usuario
         $entityManager = $doctrine->getManager();
         $userToRegister = new User();
         $userToRegister->setNickname($user["username"]);
         $userToRegister->setMail($user["email"]);
         $pwd = password_hash($user["password"], PASSWORD_DEFAULT);
         $userToRegister->setPlayerPwd($pwd);
-        $userToRegister->setBirthdate($user["birthdate"]);
+        // Convertir DateTime a string
+        $birthdateString = $birthdate->format('Y-m-d');
+        $userToRegister->setBirthdate($birthdateString);
         $entityManager->persist($userToRegister);
         $entityManager->flush();
         $session = new Session();
@@ -92,6 +102,8 @@ class UserController extends AbstractController
             'redirectTo' => 'http://localhost:4200/'
         ]);
     }
+    
+     
 
 
     //DELETE
