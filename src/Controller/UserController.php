@@ -63,45 +63,52 @@ class UserController extends AbstractController
     }
 
 
+/**
+ * @Route("/signin")
+ */
+public function userSignIn(ManagerRegistry $doctrine, Request $request)
+{
+    $user = json_decode($request->getContent(), true);
 
+    // Verificar la edad del usuario
+    $birthdate = new DateTime($user["birthdate"]);
+    $now = new DateTime();
+    $interval = $now->diff($birthdate);
+    $age = $interval->y;
 
-
-    /**
-     * @Route("/signin")
-     */
-    public function userSignIn(ManagerRegistry $doctrine, Request $request)
-    {
-        $user = json_decode($request->getContent(), true);
-    
-        // Verificar la edad del usuario
-        $birthdate = new DateTime($user["birthdate"]);
-        $now = new DateTime();
-        $interval = $now->diff($birthdate);
-        $age = $interval->y;
-    
-        if ($age < 16) {
-            return new Response("Debes tener al menos 16 años para registrarte", 400);
-        }
-    
-        // Registrar al usuario
-        $entityManager = $doctrine->getManager();
-        $userToRegister = new User();
-        $userToRegister->setNickname($user["username"]);
-        $userToRegister->setMail($user["email"]);
-        $pwd = password_hash($user["password"], PASSWORD_DEFAULT);
-        $userToRegister->setPlayerPwd($pwd);
-        // Convertir DateTime a string
-        $birthdateString = $birthdate->format('Y-m-d');
-        $userToRegister->setBirthdate($birthdateString);
-        $entityManager->persist($userToRegister);
-        $entityManager->flush();
-        $session = new Session();
-        $session->start();
-        $session->set("nickname", $userToRegister->getNickname());
-        return $this->json([
-            'redirectTo' => 'http://localhost:4200/'
-        ]);
+    if ($age < 16) {
+        return new JsonResponse(['error' => 'age'], 400);
     }
+
+    // Comprobar si el correo electrónico ya existe
+    $repository = $doctrine->getRepository(User::class);
+    $existingUser = $repository->findOneBy(['mail' => $user["email"]]);
+    if ($existingUser) {
+        return new JsonResponse(['error' => 'email'], 400);
+    }
+
+    // Registrar al usuario
+    $entityManager = $doctrine->getManager();
+    $userToRegister = new User();
+    $userToRegister->setNickname($user["username"]);
+    $userToRegister->setMail($user["email"]);
+    $pwd = password_hash($user["password"], PASSWORD_DEFAULT);
+    $userToRegister->setPlayerPwd($pwd);
+    // Convertir DateTime a string
+    $birthdateString = $birthdate->format('Y-m-d');
+    $userToRegister->setBirthdate($birthdateString);
+    $entityManager->persist($userToRegister);
+    $entityManager->flush();
+    $session = new Session();
+    $session->start();
+    $session->set("nickname", $userToRegister->getNickname());
+    return $this->json([
+        'redirectTo' => 'http://localhost:4200/'
+    ]);
+}
+
+
+
     
      
 
