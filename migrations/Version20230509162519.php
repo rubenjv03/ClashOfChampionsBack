@@ -20,7 +20,7 @@ final class Version20230509162519 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE match_game (id INT AUTO_INCREMENT NOT NULL, time_start TIME NOT NULL, time_max TIME NOT NULL, tournament_id INT NOT NULL, PRIMARY KEY(id) FOREIGN KEY(tournament_id) REFERENCES tournament(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE match_game (id INT AUTO_INCREMENT NOT NULL, time_start TIME NOT NULL, time_max TIME NOT NULL, tournament_id INT NOT NULL, PRIMARY KEY(id), FOREIGN KEY(tournament_id) REFERENCES tournament(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
     }
 
     public function down(Schema $schema): void

@@ -38,4 +38,14 @@ class TournamentController extends AbstractController
         $entityManager->flush();
 
     }
+    /**
+     * @Route("/getTournaments")
+     */
+    public function getTournaments(ManagerRegistry $doctrine, Request $request){
+        $entityManager = $doctrine->getManager();
+        $repository = $entityManager->getRepository(Tournament::class);
+        $tournaments = $repository->findNextFourTournaments();
+        return $this->json($tournaments);
+
+    }
 }

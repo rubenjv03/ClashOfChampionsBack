@@ -13,6 +13,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Tournament|null findOneBy(array $criteria, array $orderBy = null)
  * @method Tournament[]    findAll()
  * @method Tournament[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Tournament[]    findNextFourTournaments()
  */
 class TournamentRepository extends ServiceEntityRepository
 {
@@ -63,4 +64,19 @@ class TournamentRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function findNextFourTournaments()
+    {
+        $entityManager = $this->getEntityManager();
+        $hoy = new \DateTime();
+
+        $query = $entityManager->createQueryBuilder()
+            ->select('t')
+            ->from('tournament', 't')
+            ->where('t.date_end > NOW()')
+            ->orderBy('t.date_end', 'DESC')
+            ->setMaxResults(4)
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
