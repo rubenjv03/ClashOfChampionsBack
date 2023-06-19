@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\MatchController;
 
 class TournamentController extends AbstractController
 {
@@ -24,18 +25,23 @@ class TournamentController extends AbstractController
      * @Route("/tournament-register")
      */
     public function tournamentRegistration(ManagerRegistry $doctrine, Request $request){
-        $tournament = json_decode($request->getContent());
+        $tournament = json_decode($request->getContent(), true);
         $entityManager = $doctrine->getManager();
         $TournamentToRegister = new Tournament();
         $TournamentToRegister->setName($tournament['name']);
-        $TournamentToRegister->setPartNum($tournament['participants']);
+        $TournamentToRegister->setPartNum($tournament['part_num']);
         $TournamentToRegister->setDescription($tournament['description']);
         $TournamentToRegister->setDateBegin($tournament['date_begin']);
         $TournamentToRegister->setDateEnd($tournament['date_end']);
         $TournamentToRegister->setIsActive(false);
-        $TournamentToRegister->setGameName($tournament['gameName']);
+        $TournamentToRegister->setGameName($tournament['game_name']);
         $entityManager->persist($TournamentToRegister);
         $entityManager->flush();
+        $matchController = new MatchController();
+        $matchController->createMatch($doctrine, $TournamentToRegister->getName());
+        return $this->json([
+            'redirectTo' => 'http://localhost:4200/'
+        ]);
 
     }
     /**

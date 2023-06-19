@@ -20,9 +20,6 @@ final class Version20230227143624 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP INDEX team_name ON team');
-        $this->addSql('DROP INDEX nickname ON user');
-        $this->addSql('DROP INDEX mail ON user');
         $this->addSql('ALTER TABLE user CHANGE birthdate birthdate VARCHAR(10) NOT NULL');
     }
 

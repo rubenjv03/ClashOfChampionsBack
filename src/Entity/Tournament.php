@@ -23,11 +23,11 @@ class Tournament
     #[ORM\Column(length: 255)]
     private ?string $gameName = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date_begin = null;
+    #[ORM\Column(length: 30)]
+    private ?string $date_begin = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $date_end = null;
+    #[ORM\Column(length: 30)]
+    private ?string $date_end = null;
 
     #[ORM\Column]
     private ?bool $is_active = null;
@@ -76,24 +76,24 @@ class Tournament
         return $this;
     }
 
-    public function getDateBegin(): ?\DateTimeInterface
+    public function getDateBegin(): ?string
     {
         return $this->date_begin;
     }
 
-    public function setDateBegin(\DateTimeInterface $date_begin): self
+    public function setDateBegin(string $date_begin): self
     {
         $this->date_begin = $date_begin;
 
         return $this;
     }
 
-    public function getDateEnd(): ?\DateTimeInterface
+    public function getDateEnd(): ?string
     {
         return $this->date_end;
     }
 
-    public function setDateEnd(\DateTimeInterface $date_end): self
+    public function setDateEnd(string $date_end): self
     {
         $this->date_end = $date_end;
 

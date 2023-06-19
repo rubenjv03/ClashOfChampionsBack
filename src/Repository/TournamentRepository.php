@@ -67,12 +67,13 @@ class TournamentRepository extends ServiceEntityRepository
     public function findNextFourTournaments()
     {
         $entityManager = $this->getEntityManager();
-        $hoy = new \DateTime();
+        $currentDateTime = date('Y-m-d H:i:s');
 
         $query = $entityManager->createQueryBuilder()
             ->select('t')
-            ->from('tournament', 't')
-            ->where('t.date_end > NOW()')
+            ->from('App\Entity\Tournament', 't')
+            ->where("t.date_end > :currentDateTime")
+            ->setParameter('currentDateTime', $currentDateTime)
             ->orderBy('t.date_end', 'DESC')
             ->setMaxResults(4)
             ->getQuery();
